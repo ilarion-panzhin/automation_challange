@@ -5,6 +5,8 @@ metadata:
   namespace: hello
 spec:
   ingressClassName: nginx
+  tls:
+    - secretName: hello-tls
   rules:
     - http:
         paths:
