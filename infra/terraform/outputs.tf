@@ -9,3 +9,7 @@ output "rg_location" {
 output "aks_name" {
   value = azurerm_kubernetes_cluster.aks.name
 }
+
+output "aks_b_name" {
+  value = azurerm_kubernetes_cluster.aks_b.name
+}

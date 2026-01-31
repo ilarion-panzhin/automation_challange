@@ -92,4 +92,4 @@ obj/
 **/*.p12
 **/*secret*
 **/*secrets*
-certs/*.crt
+**/*.crt

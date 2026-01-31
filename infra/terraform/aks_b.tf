@@ -1,8 +1,8 @@
-resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "${var.prefix}-aks"
-  location            = data.azurerm_resource_group.rg.location
+resource "azurerm_kubernetes_cluster" "aks_b" {
+  name                = "${var.prefix}-aks-b"
+  location            = var.location_b
   resource_group_name = data.azurerm_resource_group.rg.name
-  dns_prefix          = "${var.prefix}-dns"
+  dns_prefix          = "${var.prefix}-dns-b"
   tags                = var.tags
 
   identity {
@@ -16,17 +16,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type       = "VirtualMachineScaleSets"
   }
 
+  # Same Log Analytics workspace like for region westeurope. Assumtion: for MVP ok.
   oms_agent {
     log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
   }
 
   network_profile {
     network_plugin = "azure"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      default_node_pool[0].upgrade_settings
-    ]
   }
 }
