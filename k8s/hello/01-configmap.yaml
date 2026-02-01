@@ -16,9 +16,24 @@ data:
 
       location / {
         default_type text/html;
-        return 200 "<html><body style='font-family: sans-serif;'>
-        <h1>Hello World</h1>
-        <p>Served by pod: <b>$hostname</b></p>
+        return 200 "<html><body style='font-family: sans-serif; margin: 24px;'>
+          <div style='display:flex; gap:16px; align-items:center;'>
+            <svg width='216' height='216' viewBox='0 0 120 80' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='cloud'>
+              <ellipse cx='60' cy='50' rx='40' ry='20' fill='lightblue'/>
+              <circle cx='35' cy='50' r='20' fill='lightblue'/>
+              <circle cx='85' cy='50' r='20' fill='lightblue'/>
+              <circle cx='60' cy='35' r='25' fill='lightblue'/>
+              <text x='60' y='55' font-family='Arial, sans-serif' font-size='20' font-weight='bold' fill='red' text-anchor='middle'>CGI</text>
+            </svg>
+            <div>
+              <h1 style='margin:0;'>Hello World</h1>
+              <p style='margin:6px 0 0 0;'>Served by pod: <b>$hostname</b></p>
+              <p style='margin:6px 0 0 0;'>Pod IP: <b>$server_addr</b></p>
+              <p style='margin:6px 0 0 0;'>Client IP: <b>$remote_addr</b></p>
+              <p style='margin:6px 0 0 0;'>X-Forwarded-For: <b>$http_x_forwarded_for</b></p>
+              <p style='margin:6px 0 0 0;'>Ingress Host: <b>$host</b></p>
+            </div>
+          </div>
         </body></html>\n";
       }
     }
