@@ -115,12 +115,12 @@ Trade-offs:
 - For heavier workloads consider D4s_v5 (more CPU) or E-series (more memory).
 
 ### Monitoring via `oms_agent`
-We explicitly enable AKS monitoring by linking AKS to the Log Analytics Workspace:
+AKS monitoring enabled explicitly AKS monitoring by linking AKS to the Log Analytics Workspace:
 - Enables Container Insights
 - Central place for logs and metrics
 
 ### Lifecycle ignore_changes on upgrade settings (primary cluster)
-In `aks.tf` we ignore changes for `default_node_pool[0].upgrade_settings` to avoid noisy diffs.
+In `aks.tf` changes ignored for `default_node_pool[0].upgrade_settings` to avoid noisy diffs.
 AKS/Azure may adjust upgrade settings automatically and Terraform would otherwise show perpetual drift.
 
 ---

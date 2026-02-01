@@ -1,13 +1,34 @@
 apiVersion: v1
+# Core API version for Service, ConfigMap, Namespace, etc.
+
 kind: Service
+# Service provides a stable virtual IP/DNS name and load-balancing to a set of pods.
+# Practical: pods are ephemeral; Service gives a stable endpoint for other components (Ingress, other pods).
+
 metadata:
   name: hello
+  # Service name. Inside the cluster it will be reachable as:
+  # hello.hello.svc.cluster.local (and also just "hello" within the same namespace).
+
   namespace: hello
+  # Keeps the Service in the same namespace as the Deployment/pods.
+
 spec:
   selector:
     app: hello
+    # Selects pods with label app=hello.
+    # Practical: must match the Deployment pod template labels, otherwise Service has no endpoints.
+
   ports:
     - name: http
+      # Named port (useful for clarity and for referencing by name in some configs).
       port: 80
+      # Service port (the port clients connect to on the Service VIP).
+
       targetPort: 80
+      # Pod port where traffic is forwarded.
+      # Practical: should match containerPort / actual port NGINX listens on.
+
   type: ClusterIP
+  # ClusterIP = internal-only Service (default).
+  # Practical: we expose the app externally via Ingress, not via a public LoadBalancer Service.

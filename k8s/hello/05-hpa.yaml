@@ -1,19 +1,72 @@
 apiVersion: autoscaling/v2
+# HPA API version. v2 supports multiple metrics and scaling behaviors.
+
 kind: HorizontalPodAutoscaler
+# HPA automatically adjusts the number of replicas of a target workload based on metrics.
+
 metadata:
   name: hello
   namespace: hello
+
 spec:
   scaleTargetRef:
+    # The workload that HPA scales (must exist in the same namespace).
     apiVersion: apps/v1
     kind: Deployment
     name: hello
+
   minReplicas: 2
+  # Never scale below 2 pods (availability baseline).
+
   maxReplicas: 6
+  # Never scale above 6 pods (cost/capacity guardrail).
+
   metrics:
     - type: Resource
+      # Use built-in resource metrics (requires metrics-server / AKS metrics pipeline).
       resource:
         name: cpu
         target:
           type: Utilization
+          # Utilization is calculated as a percentage of the pod's CPU *requests*.
           averageUtilization: 50
+          # Target: keep average CPU ~50% across pods.
+          # Above -> scale up, below -> scale down (but not below minReplicas).
+
+  behavior:
+    # Scaling behavior policies control how fast HPA may scale up/down.
+    # Practical: prevents "flapping" (rapid up/down) and makes scaling more stable/predictable.
+
+    scaleUp:
+      # How quickly we allow scaling up when load increases.
+      stabilizationWindowSeconds: 0
+      # No waiting window for scale-up (react quickly).
+
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+          # Allow at most +100% replicas per 60s (e.g., 2 -> 4 -> 8, but capped by maxReplicas).
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+          # Also allow adding up to 2 pods per 60s.
+      selectPolicy: Max
+      # When multiple policies are defined, choose the most permissive result (Max).
+
+    scaleDown:
+      # How quickly we allow scaling down when load drops.
+      stabilizationWindowSeconds: 300
+      # Wait 5 minutes before scaling down (smooths temporary drops and avoids flapping).
+
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+          # Allow reducing by at most 50% per 60s.
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+          # Also allow removing at most 1 pod per 60s.
+      selectPolicy: Min
+      # For scale-down, choose the most conservative result (Min) to avoid shrinking too fast.

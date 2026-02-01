@@ -1,19 +1,50 @@
 apiVersion: networking.k8s.io/v1
+# API group/version for Kubernetes Ingress resources (HTTP routing into the cluster).
+
 kind: Ingress
+# Ingress defines external HTTP(S) routing rules to internal Services.
+# Practical: you expose apps via a single ingress controller instead of using a LoadBalancer per service.
+
 metadata:
   name: hello
+  # Ingress object name (used for kubectl describe, troubleshooting, etc.).
+
   namespace: hello
+  # Keep it in the same namespace as the Service it routes to.
+
 spec:
   ingressClassName: nginx
+  # Tells Kubernetes which Ingress Controller should handle this Ingress.
+  # Practical: must match the installed ingress controller class (e.g., ingress-nginx).
+
   tls:
     - secretName: hello-tls
+      # Enables HTTPS termination at the ingress controller using a TLS secret.
+      # The secret must exist in the same namespace ("hello") and contain:
+      # - tls.crt (certificate)
+      # - tls.key (private key)
+      #
+      # Practical note: For a real setup you'd typically specify 'hosts' here too, e.g.:
+      # tls:
+      # - hosts: ["hello.example.com"]
+      #   secretName: hello-tls
+
   rules:
     - http:
+        # Ingress routing rules. Here: route HTTP requests (any Host, because no host is specified)
+        # to the backend service.
+
         paths:
           - path: /
+            # URL path to match.
+            # "/" with Prefix means: everything under "/" matches (e.g., /, /healthz, /anything).
             pathType: Prefix
+
             backend:
+              # Backend target for matched traffic: a Kubernetes Service.
               service:
                 name: hello
+                # Routes to Service "hello" (ClusterIP) in the same namespace.
                 port:
                   number: 80
+                  # Service port to send traffic to.
