@@ -1,0 +1,73 @@
+apiVersion: v1
+# Kubernetes API version for core objects like ConfigMap, Service, Pod, Namespace, etc.
+
+kind: ConfigMap
+# ConfigMap stores non-secret configuration data as key/value pairs.
+# Practical: lets you inject config into pods without rebuilding images.
+
+metadata:
+  name: hello-nginx
+  # Name of this ConfigMap. Pods will reference it (usually as a mounted file or env vars).
+
+  namespace: hello
+  # Namespace where this ConfigMap lives.
+  # Practical: keeps the "hello" app isolated from other apps and avoids using "default".
+
+data:
+  # "data" contains the config entries. Each key is a filename (when mounted as a volume)
+  # or an env var name (if injected as env).
+  default.conf: |
+    # This is a multi-line string (YAML literal block).
+    # Key "default.conf" is typically mounted into NGINX at /etc/nginx/conf.d/default.conf.
+
+    server {
+      # NGINX server block. Defines how NGINX responds to requests.
+      listen 80;
+      # Listen on port 80 inside the container.
+
+      server_name _;
+      # "_" is a catch-all virtual host (responds for any Host header).
+      # Practical: good for simple demo/ingress setups.
+
+      location = /healthz {
+        # Exact-match endpoint for health checks.
+        # Practical: used by Kubernetes readiness/liveness probes and load balancers.
+        default_type text/plain;
+        # Forces plain text response (instead of HTML).
+        return 200 "ok\n";
+        # Always return HTTP 200 with body "ok".
+      }
+
+      location / {
+        # Default route for all other requests.
+        default_type text/html;
+        # Serve HTML content directly (no static files required).
+
+        return 200 "<html><body style='font-family: sans-serif; margin: 24px;'>
+          <div style='display:flex; gap:16px; align-items:center;'>
+            <svg width='216' height='216' viewBox='0 0 120 80' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='cloud'>
+              <ellipse cx='60' cy='50' rx='40' ry='20' fill='lightblue'/>
+              <circle cx='35' cy='50' r='20' fill='lightblue'/>
+              <circle cx='85' cy='50' r='20' fill='lightblue'/>
+              <circle cx='60' cy='35' r='25' fill='lightblue'/>
+              <text x='60' y='55' font-family='Arial, sans-serif' font-size='20' font-weight='bold' fill='red' text-anchor='middle'>CGI</text>
+            </svg>
+            <div>
+              <h1 style='margin:0;'>Hello World</h1>
+
+              <p style='margin:6px 0 0 0;'>Served by pod: <b>$hostname</b></p>
+             
+              <p style='margin:6px 0 0 0;'>Pod IP: <b>$server_addr</b></p>
+              
+
+              <p style='margin:6px 0 0 0;'>Client IP: <b>$remote_addr</b></p>
+
+              <p style='margin:6px 0 0 0;'>Ingress Host: <b>$host</b></p>
+
+            </div>
+          </div>
+        </body></html>\n";
+        # Return a static HTML page inline.
+        # Practical: simplest possible "app" for demoing Service + Ingress + scaling.
+      }
+    }
