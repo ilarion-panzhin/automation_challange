@@ -1,0 +1,60 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+title Request / Traffic Flow: Internet -> Traffic Manager -> AKS A/B -> Ingress -> Service -> Pods
+
+Person(user, "User / Client", "Browser or curl")
+
+System_Boundary(azure, "Azure") {
+
+  System(trafficManager, "Azure Traffic Manager", "DNS-based global routing (priority failover: IP_A if healthy, else IP_B)")
+
+  System_Boundary(clusterA, "AKS Cluster A (West Europe)") {
+    Container(lbA, "Azure Load Balancer (Public)", "L4 TCP load balancer (Public IP_A)")
+    Container(ingSvcA, "ingress-nginx Service", "Kubernetes Service (LoadBalancer) -> ingress-nginx pods")
+    Container(ingA, "ingress-nginx controller", "NGINX Ingress Controller pods (TLS termination + routing)")
+    Container(helloSvcA, "hello Service", "Kubernetes Service (ClusterIP) -> hello pod endpoints")
+    Container(helloPodsA, "hello pods (N replicas)", "Deployment pods (nginx:1.27); N scales via HPA (e.g., 2..6)")
+    Container(hpaA, "HPA hello", "Scales hello Deployment based on CPU (min 2, max 6)")
+    Container(monitorA, "Azure Monitor / Log Analytics", "Container Insights telemetry (logs/metrics)")
+  }
+
+  System_Boundary(clusterB, "AKS Cluster B (North Europe)") {
+    Container(lbB, "Azure Load Balancer (Public)", "L4 TCP load balancer (Public IP_B)")
+    Container(ingSvcB, "ingress-nginx Service", "Kubernetes Service (LoadBalancer) -> ingress-nginx pods")
+    Container(ingB, "ingress-nginx controller", "NGINX Ingress Controller pods (TLS termination + routing)")
+    Container(helloSvcB, "hello Service", "Kubernetes Service (ClusterIP) -> hello pod endpoints")
+    Container(helloPodsB, "hello pods (N replicas)", "Deployment pods (nginx:1.27); N scales via HPA (e.g., 2..6)")
+    Container(hpaB, "HPA hello", "Scales hello Deployment based on CPU (min 2, max 6)")
+    Container(monitorB, "Azure Monitor / Log Analytics", "Container Insights telemetry (logs/metrics)")
+  }
+}
+
+' DNS-level selection
+Rel(user, trafficManager, "Resolve DNS name (tm-devops-ilar.trafficmanager.net)", "DNS")
+Rel(trafficManager, lbA, "Returns IP_A when endpoint A is healthy", "DNS answer")
+Rel(trafficManager, lbB, "Returns IP_B on failover (endpoint A unhealthy)", "DNS answer")
+
+' Cluster A path
+Rel(user, lbA, "HTTPS/HTTP request to IP_A", "TCP 443/80")
+Rel(lbA, ingSvcA, "Forward external traffic", "TCP 443/80")
+Rel(ingSvcA, ingA, "Load-balance to controller pods", "K8s Service")
+Rel(ingA, helloSvcA, "Route / and /healthz", "HTTP")
+Rel(helloSvcA, helloPodsA, "Load-balance to endpoints (N replicas)", "HTTP")
+Rel(hpaA, helloPodsA, "Scale replicas", "K8s control-plane")
+Rel(ingA, monitorA, "Ship logs/metrics", "Telemetry")
+Rel(helloPodsA, monitorA, "Ship logs/metrics", "Telemetry")
+
+' Cluster B path
+Rel(user, lbB, "HTTPS/HTTP request to IP_B", "TCP 443/80")
+Rel(lbB, ingSvcB, "Forward external traffic", "TCP 443/80")
+Rel(ingSvcB, ingB, "Load-balance to controller pods", "K8s Service")
+Rel(ingB, helloSvcB, "Route / and /healthz", "HTTP")
+Rel(helloSvcB, helloPodsB, "Load-balance to endpoints (N replicas)", "HTTP")
+Rel(hpaB, helloPodsB, "Scale replicas", "K8s control-plane")
+Rel(ingB, monitorB, "Ship logs/metrics", "Telemetry")
+Rel(helloPodsB, monitorB, "Ship logs/metrics", "Telemetry")
+
+@enduml

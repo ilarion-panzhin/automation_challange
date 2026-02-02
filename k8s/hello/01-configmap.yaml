@@ -56,24 +56,13 @@ data:
               <h1 style='margin:0;'>Hello World</h1>
 
               <p style='margin:6px 0 0 0;'>Served by pod: <b>$hostname</b></p>
-              # $hostname is an NGINX variable (usually resolves to the pod/container hostname).
-              # Practical: shows which replica served the request (helps demonstrate load balancing).
-
+             
               <p style='margin:6px 0 0 0;'>Pod IP: <b>$server_addr</b></p>
-              # $server_addr = the IP address NGINX is bound to inside the pod.
-              # Practical: shows which pod IP handled the request.
+              
 
               <p style='margin:6px 0 0 0;'>Client IP: <b>$remote_addr</b></p>
-              # $remote_addr = client IP as seen by NGINX.
-              # Note: behind ingress/load balancer this may be the ingress IP, not the real client IP.
-
-              <p style='margin:6px 0 0 0;'>X-Forwarded-For: <b>$http_x_forwarded_for</b></p>
-              # $http_x_forwarded_for reads the X-Forwarded-For header set by proxies/ingress.
-              # Practical: often contains the real client IP chain.
 
               <p style='margin:6px 0 0 0;'>Ingress Host: <b>$host</b></p>
-              # $host is the Host header used in the request.
-              # Practical: helps confirm the request arrived via the expected ingress host.
 
             </div>
           </div>
