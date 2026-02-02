@@ -1,6 +1,6 @@
 # Theory Notes for the Challenge
 
-This file contains short, interview-ready theory notes that cover the key concepts behind the challenge implementation.
+---
 
 ## 1) Round robin load balancing and alternatives
 
