@@ -3,6 +3,13 @@
 ## Symptom
 Pods intermittently cannot resolve DNS names (e.g., `kubernetes.default`).
 
+## What components matter
+- Pods (clients making DNS queries)
+- kube-dns Service (ClusterIP)
+- CoreDNS pods (DNS server)
+- Node networking (iptables/conntrack/MTU)
+- Upstream DNS (Azure/VNet resolver) for external names
+
 ## Fast checks
 ```powershell
 kubectl -n kube-system get pods | findstr coredns
