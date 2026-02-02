@@ -99,8 +99,8 @@ Cons:
 - Can create load duplication.
 
 ### Why these matter for the challenge
-Even if you only used rolling update in practice, you should be able to explain:
-- What you would pick for production.
+
+- What to pick for production.
 - What tradeoffs exist: risk, cost, rollback speed, monitoring needs.
 
 ## 3) Autoscaling theory: HPA, VPA, Cluster Autoscaler
@@ -226,7 +226,7 @@ Alternatives:
 - DR is for keeping service available after regional failure.
 
 In this challenge:
-- You described two recovery modes:
+- Described two recovery modes:
   - Near zero downtime option (active active concept).
   - MTTR <= 4h option (active passive or cold standby with reproducible infra).
 
@@ -262,14 +262,13 @@ Terraform patterns:
 
 ## 11) Security basics relevant here
 
-Even if not fully implemented, be ready to explain:
 - RBAC (who can do what in the cluster).
 - Least privilege.
 - Network policies (restrict pod to pod traffic).
 - Secret management (Kubernetes Secret vs external store like Key Vault).
 - TLS as a baseline security control.
 
-## 12) Common interview style clarifications
+## 12) Additional notes
 
 - Load balancing vs scaling
   - Balancing distributes traffic among existing replicas.
