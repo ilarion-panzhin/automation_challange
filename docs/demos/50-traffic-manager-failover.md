@@ -28,8 +28,7 @@ curl http://tm-devops-ilar.trafficmanager.net/healthz
 $RG="rg-devops-challenge-ilar"
 $TM="tm-devops-ilar"
 
-az network traffic-manager endpoint update -g $RG --profile-name $TM `
-  -n ep-aks-a --type externalEndpoints --endpoint-status Disabled
+az network traffic-manager endpoint update -g $RG --profile-name $TM -n ep-aks-a --type externalEndpoints --endpoint-status Disabled
 
 ipconfig /flushdns
 nslookup tm-devops-ilar.trafficmanager.net
@@ -44,8 +43,7 @@ Expected:
 
 ## Rollback
 ```powershell
-az network traffic-manager endpoint update -g $RG --profile-name $TM `
-  -n ep-aks-a --type externalEndpoints --endpoint-status Enabled
+az network traffic-manager endpoint update -g $RG --profile-name $TM -n ep-aks-a --type externalEndpoints --endpoint-status Enabled
 ```
 
 If it does not switch immediately:

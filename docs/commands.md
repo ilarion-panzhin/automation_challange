@@ -101,9 +101,7 @@ helm repo update
 ```powershell
 kubectl create ns ingress-nginx
 
-helm install ingress-nginx ingress-nginx/ingress-nginx `
-  -n ingress-nginx `
-  --set controller.service.type=LoadBalancer
+helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx --set controller.service.type=LoadBalancer
 ```
 
 ### Wait for public IP and inspect:
@@ -258,11 +256,9 @@ az network traffic-manager profile update -g $RG -n $TM --protocol HTTP --port 8
 ### Create endpoints (external endpoints pointing to ingress public IPs):
 
 ```powershell
-az network traffic-manager endpoint create -g $RG --profile-name $TM `
-  -n ep-aks-a --type externalEndpoints --target $IP_A --priority 1
+az network traffic-manager endpoint create -g $RG --profile-name $TM -n ep-aks-a --type externalEndpoints --target $IP_A --priority 1
 
-az network traffic-manager endpoint create -g $RG --profile-name $TM `
-  -n ep-aks-b --type externalEndpoints --target $IP_B --priority 2
+az network traffic-manager endpoint create -g $RG --profile-name $TM -n ep-aks-b --type externalEndpoints --target $IP_B --priority 2
 
 az network traffic-manager endpoint list -g $RG --profile-name $TM -o table
 ```
@@ -277,8 +273,7 @@ nslookup tm-devops-ilar.trafficmanager.net
 ### Failover demo (disable primary, then re-test):
 
 ```powershell
-az network traffic-manager endpoint update -g $RG --profile-name $TM `
-  -n ep-aks-a --type externalEndpoints --endpoint-status Disabled
+az network traffic-manager endpoint update -g $RG --profile-name $TM -n ep-aks-a --type externalEndpoints --endpoint-status Disabled
 
 # (optional local DNS cache flush)
 ipconfig /flushdns
@@ -288,8 +283,7 @@ nslookup tm-devops-ilar.trafficmanager.net
 ### Rollback (enable primary again):
 
 ```powershell
-az network traffic-manager endpoint update -g $RG --profile-name $TM `
-  -n ep-aks-a --type externalEndpoints --endpoint-status Enabled
+az network traffic-manager endpoint update -g $RG --profile-name $TM -n ep-aks-a --type externalEndpoints --endpoint-status Enabled
 ```
 
 ## 12) Azure-side checks for the ingress public IP and load balancer
